@@ -50,32 +50,16 @@ func main(in argc int, in argv **ubyte) int {
         if winner != 0 {
             printf('\nPlayer %d wins!\n', winner)
 
-            // Print the board which contains the winning move
-            printBoard(board)
-
-            // Ask if they want to play again
-            printf('\nDo you want to play again? (y|n): ')
-            getchar() // Pass over entered newline character
-
-            if getchar() == 'y'ub {
-                // Reset the winner & player
-                winner = 0; player = 1
-
-                // Free all the places on the board
-                memset(board, PLACE_FREE, sizeof ubyte * 9)
-
-                // Go back to start of game loop
-                continue
-            } else {
-                // Exit the game since they didn't want to play again
-                return 0
-            }
+            if askPlayAgain(board, &winner, &player), continue
+            else return 0
         }
 
         // Check for stalemate
         if boardCompletelyFull(board) and winner == 0 {
             printf('\nGame resulted in statemate!\n')
-            return 0
+
+            if askPlayAgain(board, &winner, &player), continue
+            else return 0
         }
 
         switchPlayer(&player)
@@ -90,12 +74,15 @@ func switchPlayer(inout player *int) void {
 }
 
 func requestPlace(in board *ubyte, in player int, out x *int, out y *int) void {
-    until break { // Until we have a place that isn't taken
+    until break valid_placement { // Until we have a place that isn't taken
         requestCoord(x, 'x', player)
         requestCoord(y, 'y', player)
 
         // If that place on the board is free, then break because we found a valid spot
-        if board[(*y - 1) * 3 + *x - 1] == PLACE_FREE, break
+        if board[(*y - 1) * 3 + *x - 1] == PLACE_FREE, break valid_placement
+
+        // Ignore garbage user-input
+        while cast ubyte getchar() != '\n'ub {}
 
         // That spot is taken, so try again
         printf('That spot is taken, enter different coordinates\n')
@@ -103,18 +90,42 @@ func requestPlace(in board *ubyte, in player int, out x *int, out y *int) void {
 }
 
 func requestCoord(out coord *int, in coordName *ubyte, in player int) void {
-    until break { // Until we have a valid coordinate
+    until break have_valid_coord { // Until we have a valid coordinate
         printf('\nEnter %s coordinate for player %d (ranging from 1-3): ', coordName, player)
 
         // Get the coordinate
         scanf('%d', coord)
 
         // If the coordinate isn't out of range, then we have a valid coordinate
-        unless *coord < 1 || *coord > 3, break
+        unless *coord < 1 || *coord > 3, break have_valid_coord
+
+        // Ignore garbage user-input
+        while cast ubyte getchar() != '\n'ub {}
 
         // That coordinate is invalid so try again
         printf('Number must be within range 1 to 3\n')
     }
+}
+
+func askPlayAgain(inout board *ubyte, out winner *int, out player *int) bool {
+    // Print the board which contains the winning move
+    printBoard(board)
+
+    // Ask if they want to play again
+    printf('\nDo you want to play again? (y|n): ')
+    getchar() // Pass over entered newline character
+
+    if getchar() == 'y'ub {
+        // Reset the winner & player
+        *winner = 0; *player = 1
+
+        // Free all the places on the board
+        memset(board, PLACE_FREE, sizeof ubyte * 9)
+
+        return true // Play again
+    }
+
+    return false
 }
 
 func won(board *ubyte, marker ubyte, a int, b int, c int) bool {
