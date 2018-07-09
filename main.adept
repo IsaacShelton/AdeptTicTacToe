@@ -3,10 +3,12 @@
 // A simple Tic-Tac-Toe game written in Adept 2.0
 // ----------------------------------------------------------------------
 
-pragma project_name 'tictactoe'
+pragma compiler_version '2.0'
+pragma project_name 'AdeptTicTacToe'
 
 import 'sys/cstdio.adept'
 import 'sys/cstring.adept'
+import 'main.adept'
 
 PLACE_FREE   == '_'ub
 PLACE_CIRCLE == 'o'ub
