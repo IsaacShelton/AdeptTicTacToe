@@ -8,7 +8,6 @@ pragma project_name 'AdeptTicTacToe'
 
 import 'sys/cstdio.adept'
 import 'sys/cstring.adept'
-import 'main.adept'
 
 PLACE_FREE   == '_'ub
 PLACE_CIRCLE == 'o'ub
